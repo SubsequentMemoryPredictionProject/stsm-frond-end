@@ -19,6 +19,14 @@
 /* eslint-env browser */
 
 (function() {
+
+  //check on page load if a login cookie exists- if so- write the name of the user on the screen
+  var currentCookies = document.cookie;
+  if ((currentCookies.startsWith("username=;")) == false) {
+    var currentUserName = currentCookies.substring(9, currentCookies.indexOf('&'));
+    document.getElementById("currentUserNameConnectedLabel").innerText = "Hello, ".concat(currentUserName);
+  }
+
   'use strict';
 
   // Check to make sure service workers are supported in the current browser,
@@ -91,15 +99,11 @@
   {
     alert("Login button");
 
-    var cookies = document.cookie.split(";");
-    //for (var i = 0; i < cookies.length; i++)
-    eraseCookie(cookies[0].split("=")[0]);
-
     //check if there is already a user connected to the website
     var currentCookie = document.cookie;
-    if (currentCookie.startsWith("username=")) {
+    if ((currentCookie.startsWith("username=;")) == false) {
       var currentUserName = currentCookie.substring(9, currentCookie.indexOf('&'));
-      alert("You are already connected as: ".concat(currentUserName));
+      alert("You are already connected as: ".concat(currentUserName).concat(". Please log out to sign in with a different user"));
     }
     //if there is not user connected to the website
     else {
@@ -107,7 +111,8 @@
       var username = document.getElementById("username").value;
       var password = document.getElementById("password").value;
       var http = new XMLHttpRequest();
-      var url = "http://79.181.158.67:3101/stsm/user_management/authenticate?user=".concat(username).concat("&password=").concat(password);
+      var url = "http://79.182.78.71:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+
       http.open("GET", url, true);
 
       //Send the proper header information along with the request
@@ -115,20 +120,33 @@
 
       http.onreadystatechange = function () {//Call a function when the state changes.
         if (http.readyState == 4 && http.status == 200) {
-          alert(http.responseText);
+          //get the response and act accordingly
+          //alert(http.responseText);
+          var myObj = JSON.parse(http.responseText);
+          if (myObj.success === false)
+          {
+            alert(myObj.msg);
+          }
+          else
+          {
+            //set up the cookie of the current user that was just logged in
+            document.cookie = "username=".concat(username).concat("&password=").concat(password);
+            //add the current user name in a text box at the top of the page
+            document.getElementById("currentUserNameConnectedLabel").innerText = "Hello, ".concat(username);
+          }
         }
       }
       http.send(null);
-      //get the response and act accordingly
-      alert(http.responseText);
-
-      //set up the cookie of the current user that was just logged in
-      document.cookie = "username=".concat(username).concat("&password=").concat(password);
-      document.getElementById("currentUserNameConnectedLabel").innerHTML = "Hello, ".concat(username);
-
-      //add the current user name in a text box at the top of the page
-
     }
+  }
+
+  document.getElementById("logoutButton").onclick = function()
+  {
+    alert("Logout button");
+    //erase the previous authentication cookie by overriding
+    document.cookie = "username=";
+    //change the status to not connected!
+    document.getElementById("currentUserNameConnectedLabel").innerText = "Not Connected";
   }
 
 

@@ -289,7 +289,7 @@
           -->
         </div>
 
-        <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+        <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp" style="max-width:500px";>
           <div class="mdl-layout__tab-panel" id="signin">
             <!--<header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
              <i class="material-icons">accessibility new</i>
@@ -306,14 +306,16 @@
                 <label><b>Password</b></label>
                 <input type="password" placeholder="Enter Password" name="psw" id="password" required>
 
-                <button id='loginButton' onclick="check()">Login</button>
+                <button type="button" id ="loginButton" class="logbtn">Login</button>
+                <!--<button id='loginButton' onclick="check()">Login</button>-->
                 <!--<button type="submit">Login</button>-->
-                <input type="checkbox" checked="checked"> Remember me
+                <!--<input type="checkbox" checked="checked"> Remember me-->
               </div>
 
               <div class="container" style="background-color:#f1f1f1">
-                <button type="button" class="cancelbtn">Cancel</button>
-                <span class="psw">Forgot <a href="#">password?</a></span>
+                <button type="button" id ="cancelButton" class="cancelbtn">Cancel</button>
+                <button type="button" id ="logoutButton" class="logoutbtn">Log Out</button>
+                <!--<span class="psw">Forgot <a href="#">password?</a></span>-->
               </div>
             </form>
 
@@ -424,7 +426,7 @@
             <div class="mdl-mega-footer--drop-down-section">
               <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
 
-              <div class="mdl-username" id="currentUserNameConnectedLabel" style="font-size: 25px;">
+              <div class="mdl-username" id="currentUserNameConnectedLabel" style="font-size: 25px; color: greenyellow">
                 Not Connected
               </div>
 
