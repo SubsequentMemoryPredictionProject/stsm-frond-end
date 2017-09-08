@@ -22,7 +22,12 @@
 
   //check on page load if a login cookie exists- if so- write the name of the user on the screen
   var currentCookies = document.cookie;
-  if ((currentCookies.startsWith("username=;")) == false) {
+  if (currentCookies.startsWith("username") == false)
+  {
+    document.getElementById("currentUserNameConnectedLabel").innerText = "Not Connected";
+  }
+  else if (currentCookies.startsWith("username=;") == false)
+  {
     var currentUserName = currentCookies.substring(9, currentCookies.indexOf('&'));
     document.getElementById("currentUserNameConnectedLabel").innerText = "Hello, ".concat(currentUserName);
   }
@@ -101,7 +106,7 @@
 
     //check if there is already a user connected to the website
     var currentCookie = document.cookie;
-    if ((currentCookie.startsWith("username=;")) == false) {
+    if (((currentCookie.startsWith("username=;")) == false) && (currentCookie.startsWith("username") == true)) {
       var currentUserName = currentCookie.substring(9, currentCookie.indexOf('&'));
       alert("You are already connected as: ".concat(currentUserName).concat(". Please log out to sign in with a different user"));
     }
@@ -111,7 +116,9 @@
       var username = document.getElementById("username").value;
       var password = document.getElementById("password").value;
       var http = new XMLHttpRequest();
-      var url = "http://79.182.78.71:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+      //var url = "http://79.182.78.71:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+      //var url = "http://127.0.0.1:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+      var url = "http://93.172.28.190:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
 
       http.open("GET", url, true);
 
@@ -149,126 +156,52 @@
     document.getElementById("currentUserNameConnectedLabel").innerText = "Not Connected";
   }
 
+  function downloadCSV(csvData)
+  {
+    var data, filename, link;
+    var csv = csvData;
+    if (csv == null) return;
 
-//*****************************************
+    filename = 'results.csv';
 
-  //document.getElementById("uploadfiles").onclick = function() {
-    //alert("in upload files");
+    if (!csv.match(/^data:text\/csv/i)) {
+      csv = 'data:text/csv;charset=utf-8,' + csv;
+    }
+    data = encodeURI(csv);
 
-    /*
-    var fileInput = document.getElementById("files"),
+    link = document.createElement('a');
+    link.setAttribute('href', data);
+    link.setAttribute('download', filename);
+    link.click();
+  }
 
-      readFile = function () {
-        var reader = new FileReader();
-        reader.onload = function () {
-          //document.getElementById('out').innerHTML = reader.result;
-          alert(reader.result);
-        };
-        // start reading the file. When it is done, calls the onload event defined above.
-        reader.readAsBinaryString(fileInput.files[0]);
-      };
+  document.getElementById("uploadfiles").onclick = function()
+  {
+    var formData = new FormData();
 
-    fileInput.addEventListener('change', readFile);
-    */
-  //};
+    var i = 0;
+    var fileArray = document.getElementById("myFileField").files;
+    for (i; i < fileArray.length; i++) {
+      formData.append(fileArray[i].name, fileArray[i]);
+    }
 
-    //return result; //JavaScript object
-    //return JSON.stringify(result); //JSON
+    // formData.append("myFile", document.getElementById("myFileField").files[0]);
+    // formData.append("myFile", document.getElementById("myFileField").files[1]);
 
-    // Select your input type file and store it in a variable
-    //const input = document.getElementById('files');
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
 
-    // This will upload the file after having read it
-    //const upload = (e) => {
-    //fetch('www.example.net', { // Your POST endpoint
-    //  method: 'POST',
-    //  headers: {
-    //    "Content-Type": "multipart/form-data;"
-    //  },
-    //  body: e.currentTarget.result // This is the content of your file
-    //})
-
-
-// Event handler executed when a file is selected
-    //const onSelectFile = (files) => {
-    // Files is a list because you can select several files
-    // We just upload the first selected file
-    //const file = input.files[0];
-    //const reader = new FileReader();
-
-    // We read the file and call the upload function with the result
-    //reader.onload = upload;
-    //reader.readAsText(file);
-  //};
-
-      //var file = this.files[0];
-      //var xhr = new XMLHttpRequest();
-      //(xhr.upload || xhr).addEventListener('progress', function(e) {
-      //  var done = e.position || e.loaded
-      //  var total = e.totalSize || e.total;
-      //  console.log('xhr progress: ' + Math.round(done/total*100) + '%');
-      //});
-      //xhr.addEventListener('load', function(e) {
-      //  console.log('xhr upload complete', e, this.responseText);
-      //});
-      //xhr.open('post', 'http://79.181.158.67:3101/stsm/upload', true);
-      //xhr.send(file);
-
-      //var result;
-      //var fileData = "C:/testUploadData.csv";
-      //var xhr = new XMLHttpRequest();
-      //var serviceURL = "http://79.181.158.67:3101/stsm/upload";
-
-      //xhr.onreadystatechange = function (Evt) {
-      //  if (xhr.readyState == 4 && xhr.status == 200) {
-      //    Data = JSON.parse(xhr.responseText);
-      //    result = Data.IsSuccess;
-      //    if (result == true) {
-      //      alert('CSV uploaded successfully');
-      //    }
-//
-      //    }
-      //  }
-
-      //xhr.open('POST', serviceURL, true);
-
-      //xhr.send(fileData);
-
-      //*****
-
-      //var username = document.getElementById("about").val
-      //var http = new XMLHttpRequest();
-      //var url = "http://79.181.158.67:3101/stsm/upload";
-      //var params = "lorem=ipsum&name=binny";
-      //http.open("POST", url, true);
-
-      //Send the proper header information along with the request
-      //http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-      //http.onreadystatechange = function() {//Call a function when the state changes.
-      //  if(http.readyState == 4 && http.status == 200) {
-      //    alert(http.responseText);
-      //  }
-      //}
-      //var formData = new FormData();
-      //formData.append("testUpload", "C:/testUploadData.csv");
-      //http.send(formData);
-      //alert(http.responseText);
-   // }
-  //}
-
-  //- Using an anonymous function:
-  //document.getElementById("clickMe").onclick = function ()
-  //{
-    //alert("hey");
-    // remove all is-active classes from tabs
-    //document.getElementById("about").className = "mdl-layout__tab";
-    //document.getElementById("about").className = "mdl-layout__tab is-active";
-    //document.getElementById("signInTab").setAttribute("is-active", true);
-    //$('a.mdl-layout__tab').removeClass('is-active');
-    // activate desired tab
-    //$('a[href="#signin"]').addClass('is-active');
-    //alert('hello!');
-  //};
+    xhr.onreadystatechange = function () {//Call a function when the state changes.
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        //get the response and act accordingly
+        alert(JSON.parse(xhr.responseText).msg);
+        //add loader for a specific amount of time
+        document.getElementById("loaderid").style.visibility='visible'
+        //
+        //downloadCSV(xhr.responseText);
+      }
+    }
+    xhr.send(formData);
+  }
 
 })();
