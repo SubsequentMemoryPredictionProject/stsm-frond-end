@@ -18,6 +18,10 @@
  */
 /* eslint-env browser */
 
+var nodeServerIP = "54.196.242.164";
+var galComputerIP = "79.182.78.71";
+var sivanCompuetrIP = "93.172.28.190";
+
 (function() {
 
   //check on page load if a login cookie exists- if so- write the name of the user on the screen
@@ -86,23 +90,10 @@
     });
   }
 
-  function createCookie(name,value,days) {
-    if (days) {
-      var date = new Date();
-      date.setTime(date.getTime()+(days*24*60*60*1000));
-      var expires = "; expires="+date.toGMTString();
-    }
-    else var expires = "";
-    document.cookie = name+"="+value+expires+"; path=/";
-  }
-
-  function eraseCookie(name) {
-    createCookie(name,"",-1);
-  }
-
+  //Login Button Code
   document.getElementById("loginButton").onclick = function()
   {
-    alert("Login button");
+    //alert("Login button");
 
     //check if there is already a user connected to the website
     var currentCookie = document.cookie;
@@ -118,7 +109,9 @@
       var http = new XMLHttpRequest();
       //var url = "http://79.182.78.71:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
       //var url = "http://127.0.0.1:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
-      var url = "http://93.172.28.190:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+      //var url = "http://93.172.28.190:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+      //var url = "http://54.196.242.164:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
+      var url = "http://".concat(nodeServerIP).concat(":3101/stsm/user_management/authenticate?user_name=").concat(username).concat("&password=").concat(password);
 
       http.open("GET", url, true);
 
@@ -147,15 +140,60 @@
     }
   }
 
+  //Logout Button Code
   document.getElementById("logoutButton").onclick = function()
   {
-    alert("Logout button");
+    //document.getElementById("uploadTab").click();
+    //alert("Logout button");
     //erase the previous authentication cookie by overriding
     document.cookie = "username=";
     //change the status to not connected!
     document.getElementById("currentUserNameConnectedLabel").innerText = "Not Connected";
   }
 
+  //Create Button Code
+  document.getElementById("createButton").onclick = function()
+  {
+    //alert("Create button");
+
+    //check if there is already a user connected to the website
+    var currentCookie = document.cookie;
+    if (((currentCookie.startsWith("username=;")) == false) && (currentCookie.startsWith("username") == true)) {
+      var currentUserName = currentCookie.substring(9, currentCookie.indexOf('&'));
+      alert("You are already connected as: ".concat(currentUserName).concat(". Please log out to create a new user"));
+    }
+    //if there is not user connected to the website
+    else {
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+      var http = new XMLHttpRequest();
+      var url = "http://".concat(nodeServerIP).concat(":3101/stsm/user_management/create_user?user_name=").concat(username).concat("&password=").concat(password);
+
+      http.open("PUT", url, true);
+
+      //Send the proper header information along with the request
+      http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+      http.onreadystatechange = function () {//Call a function when the state changes.
+        if (http.readyState == 4 && http.status == 200) {
+          //get the response and act accordingly
+          alert(http.responseText);
+          var myObj = JSON.parse(http.responseText);
+          if (myObj.success === false)
+          {
+            alert(myObj.msg);
+          }
+          else
+          {
+            alert("New user was created!");
+          }
+        }
+      }
+      http.send(null);
+    }
+  }
+
+  //Download CSV code
   function downloadCSV(csvData)
   {
     var data, filename, link;
@@ -175,21 +213,38 @@
     link.click();
   }
 
+  //Upload predict filed code
   document.getElementById("uploadfiles").onclick = function()
   {
+    //before uploading files - check if a login cookie exists- if not- ask the user to sign in
+    var currentCookies = document.cookie;
+    if (currentCookies.startsWith("username") == false)
+    {
+      alert("In Order to upload files you need to be connected to the system. Please go to the sign in tab");
+      return;
+    }
+    else if (currentCookies.startsWith("username=;") == true)
+    {
+      alert("In Order to upload files you need to be connected to the system. Please go to the sign in tab");
+      return;
+    }
+
     var formData = new FormData();
 
     var i = 0;
-    var fileArray = document.getElementById("myFileField").files;
+    //var fileArray = document.getElementById("myFileField").files;
+    var fileArray = document.getElementById("file").files;
     for (i; i < fileArray.length; i++) {
       formData.append(fileArray[i].name, fileArray[i]);
     }
 
-    // formData.append("myFile", document.getElementById("myFileField").files[0]);
-    // formData.append("myFile", document.getElementById("myFileField").files[1]);
-
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
+    //xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
+    //xhr.open("POST", "http://79.182.78.71:3101/stsm/prediction/uploadEegFiles/");
+    //xhr.open("POST", "http://54.196.242.164:3101/stsm/prediction/uploadEegFiles/");
+    var url = "http://".concat(nodeServerIP).concat(":3101/stsm/prediction/uploadEegFiles/");
+    xhr.open("POST", url);
+
 
     xhr.onreadystatechange = function () {//Call a function when the state changes.
       if (xhr.readyState == 4 && xhr.status == 200) {
@@ -202,6 +257,115 @@
       }
     }
     xhr.send(formData);
+  }
+
+  //Set the Amount of files that were uploaded for perdiction
+  var inputs = document.querySelectorAll( '.inputfile' );
+  Array.prototype.forEach.call( inputs, function( input )
+  {
+    var label	 = input.nextElementSibling,
+      labelVal = label.innerHTML;
+
+    input.addEventListener( 'change', function( e )
+    {
+      var fileName = '';
+      if( this.files && this.files.length > 1 )
+        fileName = this.files.length + " files selected";
+      else
+        fileName = e.target.value.split( '\\' ).pop();
+
+      if( fileName )
+        fileLabel.innerHTML = fileName;
+
+    });
+  });
+
+  //Upload validate filed code
+  document.getElementById("uploadvalidatefiles").onclick = function()
+  {
+    //before uploading files - check if a login cookie exists- if not- ask the user to sign in
+    var currentCookies = document.cookie;
+    if (currentCookies.startsWith("username") == false)
+    {
+      alert("In Order to upload files you need to be connected to the system. Please go to the sign in tab");
+      return;
+    }
+    else if (currentCookies.startsWith("username=;") == true)
+    {
+      alert("In Order to upload files you need to be connected to the system. Please go to the sign in tab");
+      return;
+    }
+
+    var formData = new FormData();
+
+    var i = 0;
+    //var fileArray = document.getElementById("myFileField").files;
+    var fileArray = document.getElementById("validatefile").files;
+    for (i; i < fileArray.length; i++) {
+      formData.append(fileArray[i].name, fileArray[i]);
+    }
+
+    var xhr = new XMLHttpRequest();
+    //xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
+    //TODO: change the link of the validate files that were updated
+    //xhr.open("POST", "http://54.196.242.164:3101/stsm/prediction/uploadEegFiles/");
+    var url = "http://".concat(nodeServerIP).concat(":3101/stsm/prediction/uploadEegFiles/");
+    xhr.open("POST", url);
+
+    xhr.onreadystatechange = function () {//Call a function when the state changes.
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        //get the response and act accordingly
+        alert(JSON.parse(xhr.responseText).msg);
+        //add loader for a specific amount of time
+        document.getElementById("loaderid").style.visibility='visible'
+        //
+        //downloadCSV(xhr.responseText);
+      }
+    }
+    xhr.send(formData);
+  }
+
+  //Set the Amount of files that were uploaded for perdiction
+  var inputs = document.querySelectorAll( '.inputvalidatefile' );
+  Array.prototype.forEach.call( inputs, function( input )
+  {
+    var label	 = input.nextElementSibling,
+      labelVal = label.innerHTML;
+
+    input.addEventListener( 'change', function( e )
+    {
+      var fileName = '';
+      if( this.files && this.files.length > 1 )
+        fileName = this.files.length + " files selected";
+      else
+        fileName = e.target.value.split( '\\' ).pop();
+
+      if( fileName )
+        validatefilelabel.innerHTML = fileName;
+
+    });
+  });
+
+  //Click links in the buttom of the page
+
+  document.getElementById("ourgoalclick").onclick = function()
+  {
+    document.getElementById("aboutTab").click();
+  }
+
+  document.getElementById("signinclick").onclick = function()
+  {
+    document.getElementById("signInTab").click();
+  }
+
+  document.getElementById("perdictionclick").onclick = function()
+  {
+    document.getElementById("predictionTab").click();
+  }
+
+  document.getElementById("validationclick").onclick = function()
+  {
+    document.getElementById("validationTab").click();
   }
 
 })();

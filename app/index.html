@@ -6,97 +6,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="js/plupload.full.min.js"></script>
     <script src="js/jquery.progressbar.min.js"></script>
-    <script>
-      // Upload Form
-      $(function() {
-        // Settings ////////////////////////////////////////////////
-        var uploader = new plupload.Uploader({
-          runtimes : 'html5,flash,silverlight', // Set runtimes, here it will use HTML5, if not supported will use flash, etc.
-          browse_button : 'pickfiles', // The id on the select files button
-          multi_selection: true, // Allow to select one file each time
-          container : 'uploader', // The id of the upload form container
-          max_file_size : '200kb', // Maximum file size allowed
-          url : 'upload.php', // The url to the upload.php file
-          flash_swf_url : 'js/plupload.flash.swf', // The url to thye flash file
-          silverlight_xap_url : 'js/plupload.silverlight.xap', // The url to the silverlight file
-          filters : [ {title : "Image files", extensions : "jpg,gif,png,csv,xlsx"} ] // Filter the files that will be showed on the select files window
-        });
-
-        // Start Upload ////////////////////////////////////////////
-        // When the button with the id "#uploadfiles" is clicked the upload will start
-        $('#uploadfiles').click(function(e) {
-          uploader.start();
-          e.preventDefault();
-        });
-
-        uploader.init(); // Initializes the Uploader instance and adds internal event listeners.
-
-        // Selected Files //////////////////////////////////////////
-        // When the user select a file it wiil append one div with the class "addedFile" and a unique id to the "#filelist" div.
-        // This appended div will contain the file name and a remove button
-        uploader.bind('FilesAdded', function(up, files) {
-          $.each(files, function(i, file) {
-            $('#filelist').append('<div class="addedFile" id="' + file.id + '">' + file.name + '<a href="#" id="' + file.id + '" class="removeFile"></a>' + '</div>');
-          });
-          up.refresh(); // Reposition Flash/Silverlight
-        });
-
-        // Error Alert /////////////////////////////////////////////
-        // If an error occurs an alert window will popup with the error code and error message.
-        // Ex: when a user adds a file with now allowed extension
-        uploader.bind('Error', function(up, err) {
-          alert("Error: " + err.code + ", Message: " + err.message + (err.file ? ", File: " + err.file.name : "") + "");
-          up.refresh(); // Reposition Flash/Silverlight
-        });
-
-        // Remove file button //////////////////////////////////////
-        // On click remove the file from the queue
-        $('a.removeFile').live('click', function(e) {
-          uploader.removeFile(uploader.getFile(this.id));
-          $('#'+this.id).remove();
-          e.preventDefault();
-        });
-
-        /*
-        // Progress bar ////////////////////////////////////////////
-        // Add the progress bar when the upload starts
-        // Append the tooltip with the current percentage
-        uploader.bind('UploadProgress', function(up, file) {
-          var progressBarValue = up.total.percent;
-          $('#progressbar').fadeIn().progressbar({
-            value: progressBarValue
-          });
-          $('#progressbar .ui-progressbar-value').html('<span class="progressTooltip">' + up.total.percent + '%</span>');
-        });
-        */
-
-        // Close window after upload ///////////////////////////////
-        // If checkbox is checked when the upload is complete it will close the window
-        //uploader.bind('UploadComplete', function() {
-        //  if ($('.upload-form #checkbox').attr('checked')) {
-        //    $('.upload-form').fadeOut('slow');
-        //  }
-        //});
-
-        // Close window ////////////////////////////////////////////
-        // When the close button is clicked close the window
-        //$('.upload-form .close').on('click', function(e) {
-        //  $('.upload-form').fadeOut('slow');
-        //  e.preventDefault();
-        //});
-
-      }); // end of the upload form configuration
-    </script>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STSM Prediction</title>
-    <div style="position: absolute; top: 0; right: 0; width: 100px; text-align:right; color:black;">
-      not connected
-    </div>
-    <!--<label for="usernameConnected">not connected</label>-->
 
     <!-- Disable tap highlight on IE -->
     <meta name="msapplication-tap-highlight" content="no">
@@ -121,11 +36,6 @@
 
     <!-- Color the status bar on mobile devices -->
     <meta name="theme-color" content="#2F3BA2">
-
-    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
-    <!--
-    <link rel="canonical" href="http://www.example.com/">
-    -->
 
     <!-- Material Design icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -158,8 +68,8 @@
         <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
           <a href="#about" class="mdl-layout__tab is-active" id="aboutTab">About</a>
           <a href="#signin" class="mdl-layout__tab" id="signInTab">Sign In</a>
-          <a href="#upload" class="mdl-layout__tab">Upload Files</a>
-          <a href="#features" class="mdl-layout__tab">Results</a>
+          <a href="#upload" class="mdl-layout__tab" id="predictionTab">Predict</a>
+          <a href="#validate" class="mdl-layout__tab" id="validationTab">Validate</a>
           <a href="#features" class="mdl-layout__tab">FAQ</a>
           <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-shadow--4dp mdl-color--accent" id="add">
             <i class="material-icons" role="presentation">add</i>
@@ -185,16 +95,7 @@
                 <!--<a href="#" class="mdl-button">Read our features</a>-->
               </div>
             </div>
-            <!--
-            <button class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="btn1">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right" for="btn1">
-              <li class="mdl-menu__item">Lorem</li>
-              <li class="mdl-menu__item" disabled>Ipsum</li>
-              <li class="mdl-menu__item">Dolor</li>
-            </ul>
-            -->
+
           </section>
           <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
             <header class="section__play-btn mdl-cell mdl-cell--3-col-desktop mdl-cell--2-col-tablet mdl-cell--4-col-phone mdl-color--teal-100 mdl-color-text--white">
@@ -203,7 +104,7 @@
             <div class="mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone">
               <div class="mdl-card__supporting-text">
                 <h4>Sign In</h4>
-                In Order to upload youer data, you need to create a user and sign in to the system. Please navigate to the Sign In Tab
+                In Order to upload your data, you need to create a user and sign in to the system. Please navigate to the Sign In Tab
               </div>
               <div class="mdl-card__actions">
                 <!--<input id="clickMe" type="button" value="clickme" onclick="doFunction();" />-->
@@ -313,7 +214,7 @@
               </div>
 
               <div class="container" style="background-color:#f1f1f1">
-                <button type="button" id ="cancelButton" class="cancelbtn">Cancel</button>
+                <button type="button" id ="createButton" class="createbtn">Create</button>
                 <button type="button" id ="logoutButton" class="logoutbtn">Log Out</button>
                 <!--<span class="psw">Forgot <a href="#">password?</a></span>-->
               </div>
@@ -331,20 +232,26 @@
             <div class="upload-form" id="uploader">
 
               <!-- Form Heading -->
-              <h1 class="replace-text">Upload Form</h1>
+              <h1 class="replace-text">Predict Form</h1>
 
               <p>Please upload the right format of CSV files to predict the memory of your participants</p>
 
               <!-- Select & Upload Button -->
               <div>
-                <a class="button" id="pickfiles" href="#">Select</a>
+                <!--<a class="button" id="pickfiles" href="#">Select</a>-->
+                <!--<input type="file" id="myFileField" name="myFile" multiple="multiple" />-->
+                <!--<input type="file" name="file" id="file" class="inputfile" data-multiple-caption="{count} files selected" multiple />-->
+                <input type="file" name="file" id="file" class="inputfile" multiple="multiple" />
+                <label for="file" id="fileLabel">Choose Files</label>
+
                 <a class="button" id="uploadfiles" href="#">Upload</a>
               </div>
 
-              <input type="file" id="myFileField" name="myFile" multiple="multiple" />
+              <!--<input type="file" id="myFileField" name="myFile" multiple="multiple" />-->
 
               <!--<div id="loaderid" class="loader" visibility="hidden"></div>-->
-              <div id="loaderid" class="loader"></div>
+              <!--<div class="loader"></div>-->
+              <!--<div id="loaderid" class="loader"></div>-->
 
               <!--<input id="files" type="file" />-->
 
@@ -353,6 +260,55 @@
 
               <!-- Progress Bar -->
               <div id="progressbar"></div>
+
+              <!-- Close After Upload -->
+              <!--
+              <div id="closeAfter">
+                <span class="checkbox">
+                    <input type="checkbox" name="checkbox" id="checkbox">
+                    <label for="checkbox">Close window after upload</label>
+                </span>
+              </div>
+              -->
+            </div>
+
+
+          </div>
+        </section>
+        <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp" style="position: relative; top:-47px">
+          <div class="mdl-layout__tab-panel" id="validate">
+
+            <!--<form action="upload.php" method="post" enctype="multipart/form-data">-->
+            <div class="validate-form" id="validator">
+
+              <!-- Form Heading -->
+              <h1 class="replace-text">Vlidate Form</h1>
+
+              <p>Please upload the right format of CSV files to validate the results of your participants</p>
+
+              <!-- Select & Upload Button -->
+              <div>
+                <!--<a class="button" id="pickfiles" href="#">Select</a>-->
+                <!--<input type="file" id="myFileField" name="myFile" multiple="multiple" />-->
+                <!--<input type="file" name="file" id="file" class="inputfile" data-multiple-caption="{count} files selected" multiple />-->
+                <input type="file" name="validatefile" id="validatefile" class="inputvalidatefile" multiple="multiple" />
+                <label for="validatefile" id="validatefilelabel">Choose Files</label>
+
+                <a class="button" id="uploadvalidatefiles" href="#">Upload</a>
+              </div>
+
+              <!--<input type="file" id="myFileField" name="myFile" multiple="multiple" />-->
+
+              <!--<div id="loaderid" class="loader" visibility="hidden"></div>-->
+              <!--<div id="loaderid" class="loader"></div>-->
+
+              <!--<input id="files" type="file" />-->
+
+              <!-- File List -->
+              <div id="validatefilelist" class="cb"></div>
+
+              <!-- Progress Bar -->
+              <!--<div id="progressbar"></div>-->
 
               <!-- Close After Upload -->
               <!--
@@ -437,18 +393,20 @@
 
               <h1 class="mdl-mega-footer--heading">About</h1>
               <ul class="mdl-mega-footer--link-list">
-                <li><a href="#">Our Goal</a></li>
-                <li><a href="#">Sign in</a></li>
+                <li><a id="ourgoalclick" href="#">Our Goal</a></li>
+                <li><a id="signinclick" href="#">Sign in</a></li>
               </ul>
+
             </div>
             <div class="mdl-mega-footer--drop-down-section">
               <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
               <h1 class="mdl-mega-footer--heading">Upload Data</h1>
               <ul class="mdl-mega-footer--link-list">
-                <li><a href="#">How to upload data?</a></li>
-                <li><a href="#">Explain the systme's process</a></li>
+                <li><a id="perdictionclick" href="#">Upload For Prediction</a></li>
+                <li><a id="validationclick" href="#">Upload For Validation</a></li>
               </ul>
             </div>
+            <!--
             <div class="mdl-mega-footer--drop-down-section">
               <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
               <h1 class="mdl-mega-footer--heading">Technology</h1>
@@ -456,6 +414,7 @@
                 <li><a href="#">About the system</a></li>
               </ul>
             </div>
+            -->
           </div>
           <div class="mdl-mega-footer--bottom-section">
             <div class="mdl-logo">
