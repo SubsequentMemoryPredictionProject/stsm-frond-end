@@ -70,11 +70,12 @@
           <a href="#signin" class="mdl-layout__tab" id="signInTab">Sign In</a>
           <a href="#upload" class="mdl-layout__tab" id="predictionTab">Predict</a>
           <a href="#validate" class="mdl-layout__tab" id="validationTab">Validate</a>
-          <a href="#features" class="mdl-layout__tab">FAQ</a>
+          <!--
           <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-shadow--4dp mdl-color--accent" id="add">
             <i class="material-icons" role="presentation">add</i>
             <span class="visuallyhidden">Add</span>
           </button>
+          -->
         </div>
       </header>
       <main class="mdl-layout__content">
@@ -291,8 +292,8 @@
                 <!--<a class="button" id="pickfiles" href="#">Select</a>-->
                 <!--<input type="file" id="myFileField" name="myFile" multiple="multiple" />-->
                 <!--<input type="file" name="file" id="file" class="inputfile" data-multiple-caption="{count} files selected" multiple />-->
-                <input type="file" name="validatefile" id="validatefile" class="inputvalidatefile" multiple="multiple" />
-                <label for="validatefile" id="validatefilelabel">Choose Files</label>
+                <input type="file" name="validatefile" id="validatefile" class="inputvalidatefile" />
+                <label for="validatefile" id="validatefilelabel">Choose A File</label>
 
                 <a class="button" id="uploadvalidatefiles" href="#">Upload</a>
               </div>
@@ -388,7 +389,7 @@
               <input class="mdl-mega-footer--heading-checkbox" type="checkbox" checked>
 
               <div class="mdl-username" id="currentUserNameConnectedLabel" style="font-size: 25px; color: greenyellow">
-                Not Connected
+                Please Sign In
               </div>
 
               <h1 class="mdl-mega-footer--heading">About</h1>

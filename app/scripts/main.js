@@ -111,7 +111,7 @@ var sivanCompuetrIP = "93.172.28.190";
       //var url = "http://127.0.0.1:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
       //var url = "http://93.172.28.190:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
       //var url = "http://54.196.242.164:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
-      var url = "http://".concat(nodeServerIP).concat(":3101/stsm/user_management/authenticate?user_name=").concat(username).concat("&password=").concat(password);
+      var url = "http://".concat(galComputerIP).concat(":3101/stsm/user_management/authenticate?user_name=").concat(username).concat("&password=").concat(password);
 
       http.open("GET", url, true);
 
@@ -167,7 +167,7 @@ var sivanCompuetrIP = "93.172.28.190";
       var username = document.getElementById("username").value;
       var password = document.getElementById("password").value;
       var http = new XMLHttpRequest();
-      var url = "http://".concat(nodeServerIP).concat(":3101/stsm/user_management/create_user?user_name=").concat(username).concat("&password=").concat(password);
+      var url = "http://".concat(galComputerIP).concat(":3101/stsm/user_management/create_user?user_name=").concat(username).concat("&password=").concat(password);
 
       http.open("PUT", url, true);
 
@@ -242,7 +242,7 @@ var sivanCompuetrIP = "93.172.28.190";
     //xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
     //xhr.open("POST", "http://79.182.78.71:3101/stsm/prediction/uploadEegFiles/");
     //xhr.open("POST", "http://54.196.242.164:3101/stsm/prediction/uploadEegFiles/");
-    var url = "http://".concat(nodeServerIP).concat(":3101/stsm/prediction/uploadEegFiles/");
+    var url = "http://".concat(galComputerIP).concat(":3101/stsm/prediction/uploadFiles/");
     xhr.open("POST", url);
 
 
@@ -309,7 +309,7 @@ var sivanCompuetrIP = "93.172.28.190";
     //xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
     //TODO: change the link of the validate files that were updated
     //xhr.open("POST", "http://54.196.242.164:3101/stsm/prediction/uploadEegFiles/");
-    var url = "http://".concat(nodeServerIP).concat(":3101/stsm/prediction/uploadEegFiles/");
+    var url = "http://".concat(galComputerIP).concat(":3101/stsm/prediction/uploadFiles/");
     xhr.open("POST", url);
 
     xhr.onreadystatechange = function () {//Call a function when the state changes.
