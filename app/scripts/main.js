@@ -18,10 +18,6 @@
  */
 /* eslint-env browser */
 
-var nodeServerIP = "54.196.242.164";
-var galComputerIP = "79.182.78.71";
-var sivanCompuetrIP = "93.172.28.190";
-
 (function() {
 
   //check on page load if a login cookie exists- if so- write the name of the user on the screen
@@ -107,11 +103,8 @@ var sivanCompuetrIP = "93.172.28.190";
       var username = document.getElementById("username").value;
       var password = document.getElementById("password").value;
       var http = new XMLHttpRequest();
-      //var url = "http://79.182.78.71:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
-      //var url = "http://127.0.0.1:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
-      //var url = "http://93.172.28.190:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
-      //var url = "http://54.196.242.164:3101/stsm/user_management/authenticate?user_name=".concat(username).concat("&password=").concat(password);
-      var url = "http://".concat(galComputerIP).concat(":3101/stsm/user_management/authenticate?user_name=").concat(username).concat("&password=").concat(password);
+      //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/user_management/authenticate?user_name=").concat(username).concat("&password=").concat(password);
+      var url = "http://".concat(config.nodeServerIP).concat(config.loginEndpoint).concat(username).concat("&password=").concat(password);
 
       http.open("GET", url, true);
 
@@ -143,7 +136,6 @@ var sivanCompuetrIP = "93.172.28.190";
   //Logout Button Code
   document.getElementById("logoutButton").onclick = function()
   {
-    //document.getElementById("uploadTab").click();
     //alert("Logout button");
     //erase the previous authentication cookie by overriding
     document.cookie = "username=";
@@ -167,7 +159,8 @@ var sivanCompuetrIP = "93.172.28.190";
       var username = document.getElementById("username").value;
       var password = document.getElementById("password").value;
       var http = new XMLHttpRequest();
-      var url = "http://".concat(galComputerIP).concat(":3101/stsm/user_management/create_user?user_name=").concat(username).concat("&password=").concat(password);
+      //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/user_management/create_user?user_name=").concat(username).concat("&password=").concat(password);
+      var url = "http://".concat(config.nodeServerIP).concat(config.createUserEndpoint).concat(username).concat("&password=").concat(password);
 
       http.open("PUT", url, true);
 
@@ -217,6 +210,7 @@ var sivanCompuetrIP = "93.172.28.190";
   document.getElementById("uploadfiles").onclick = function()
   {
     //before uploading files - check if a login cookie exists- if not- ask the user to sign in
+
     var currentCookies = document.cookie;
     if (currentCookies.startsWith("username") == false)
     {
@@ -229,20 +223,20 @@ var sivanCompuetrIP = "93.172.28.190";
       return;
     }
 
+    //change the source of the loader from empty to upload picture so that it would show the loading gif
+    document.getElementById('loadingGiftploadfiles').src = 'images/loadingGif1.gif';
+
     var formData = new FormData();
 
     var i = 0;
-    //var fileArray = document.getElementById("myFileField").files;
     var fileArray = document.getElementById("file").files;
     for (i; i < fileArray.length; i++) {
       formData.append(fileArray[i].name, fileArray[i]);
     }
 
     var xhr = new XMLHttpRequest();
-    //xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
-    //xhr.open("POST", "http://79.182.78.71:3101/stsm/prediction/uploadEegFiles/");
-    //xhr.open("POST", "http://54.196.242.164:3101/stsm/prediction/uploadEegFiles/");
-    var url = "http://".concat(galComputerIP).concat(":3101/stsm/prediction/uploadFiles/");
+    //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/prediction/uploadFiles/");
+    var url = "http://".concat(config.nodeServerIP).concat(config.uploadPredictFilesEndpoint);
     xhr.open("POST", url);
 
 
@@ -250,13 +244,60 @@ var sivanCompuetrIP = "93.172.28.190";
       if (xhr.readyState == 4 && xhr.status == 200) {
         //get the response and act accordingly
         alert(JSON.parse(xhr.responseText).msg);
-        //add loader for a specific amount of time
-        document.getElementById("loaderid").style.visibility='visible'
-        //
-        //downloadCSV(xhr.responseText);
+
+        var myObj = JSON.parse(xhr.responseText);
+        if (myObj.success === false)
+        {
+          alert("Files were not uploaded! Please try again!")
+        }
+        else {
+          //add loader for a specific amount of time and then call the function that asks for the result
+          setTimeout(sendRequestForResults, config.timeoutBeforeRequestingPredictionResults);
+        }
       }
     }
     xhr.send(formData);
+  }
+
+  function sendRequestForResults()
+  {
+    //document.getElementById('loadingGiftploadfiles').src = '';
+
+    //send a request to get the results file and download it
+    var http = new XMLHttpRequest();
+    //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/prediction/getResults/");
+    var url = "http://".concat(config.nodeServerIP).concat(config.predictionResultsEndpoint);
+
+    http.open("GET", url, true);
+
+    //Send the proper header information along with the request
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    http.onreadystatechange = function () {//Call a function when the state changes.
+      if (http.readyState == 4 && http.status == 200) {
+        //get the response and act accordingly
+        //alert(http.responseText);
+        downloadCSV(http.responseText);
+        document.getElementById('loadingGiftploadfiles').src = '';
+        /*
+        var myObj = JSON.parse(http.responseText);
+        if (myObj.success === false)
+        {
+          alert(myObj.msg);
+          //send the request again since there was no reply
+          setTimeout(sendRequestForResults, 1000);
+        }
+        else
+        {
+          ///make the loader invisible
+          document.getElementById('loadingGiftploadfiles').src = '';
+          //download the csv that we got of the results
+          downloadCSV(http.responseText);
+        }
+        */
+      }
+    }
+    http.send(null);
   }
 
   //Set the Amount of files that were uploaded for perdiction
@@ -284,6 +325,7 @@ var sivanCompuetrIP = "93.172.28.190";
   document.getElementById("uploadvalidatefiles").onclick = function()
   {
     //before uploading files - check if a login cookie exists- if not- ask the user to sign in
+
     var currentCookies = document.cookie;
     if (currentCookies.startsWith("username") == false)
     {
@@ -296,33 +338,81 @@ var sivanCompuetrIP = "93.172.28.190";
       return;
     }
 
+    //change the source of the loader from empty to picture so that it would show the loading gif
+    document.getElementById('loadingGif').src = 'images/loadingGif1.gif';
+
     var formData = new FormData();
 
     var i = 0;
-    //var fileArray = document.getElementById("myFileField").files;
     var fileArray = document.getElementById("validatefile").files;
     for (i; i < fileArray.length; i++) {
       formData.append(fileArray[i].name, fileArray[i]);
     }
 
     var xhr = new XMLHttpRequest();
-    //xhr.open("POST", "http://93.172.28.190:3101/stsm/prediction/uploadEegFiles/");
     //TODO: change the link of the validate files that were updated
-    //xhr.open("POST", "http://54.196.242.164:3101/stsm/prediction/uploadEegFiles/");
-    var url = "http://".concat(galComputerIP).concat(":3101/stsm/prediction/uploadFiles/");
+    //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/prediction/uploadFiles/");
+    var url = "http://".concat(config.nodeServerIP).concat(config.uploadValidateFilesEndpoint);
     xhr.open("POST", url);
 
     xhr.onreadystatechange = function () {//Call a function when the state changes.
       if (xhr.readyState == 4 && xhr.status == 200) {
         //get the response and act accordingly
         alert(JSON.parse(xhr.responseText).msg);
-        //add loader for a specific amount of time
-        document.getElementById("loaderid").style.visibility='visible'
-        //
-        //downloadCSV(xhr.responseText);
+        var myObj = JSON.parse(xhr.responseText);
+        if (myObj.success === false)
+        {
+          alert("Files were not uploaded! Please try again!");
+        }
+        else {
+          //add loader for a specific amount of time and then call the function that asks for the result
+          setTimeout(sendRequestForValidationResults, config.timeoutBeforeRequestingValidationResults);
+        }
       }
     }
     xhr.send(formData);
+  }
+
+  function sendRequestForValidationResults()
+  {
+    //document.getElementById('loadingGif').src = '';
+
+    //send a request to get the results file and download it
+    var http = new XMLHttpRequest();
+    //TODO: change the link to get the result of the validation
+    //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/prediction/getResults/");
+    var url = "http://".concat(config.nodeServerIP).concat(config.validateResultsEndpoint);
+
+    http.open("GET", url, true);
+
+    //Send the proper header information along with the request
+    http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    http.onreadystatechange = function () {//Call a function when the state changes.
+      if (http.readyState == 4 && http.status == 200) {
+        //get the response and act accordingly
+        //alert(http.responseText);
+        downloadCSV(http.responseText);
+        document.getElementById('loadingGif').src = '';
+        /*
+        var myObj = JSON.parse(http.responseText);
+        if (myObj.success === false)
+        {
+          alert(myObj.msg);
+          //send the request again since there was no reply
+          setTimeout(sendRequestForResults, 1000);
+        }
+        else
+        {
+          ///make the loader invisible
+          document.getElementById('loadingGif').src = '';
+          //download the csv that we got of the results
+          downloadCSV(http.responseText);
+        }
+        */
+      }
+    }
+    http.send(null);
   }
 
   //Set the Amount of files that were uploaded for perdiction
