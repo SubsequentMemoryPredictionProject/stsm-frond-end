@@ -22,6 +22,8 @@
 
   //check on page load if a login cookie exists- if so- write the name of the user on the screen
   var currentCookies = document.cookie;
+  var currentSessionUserId = -1;
+
   if (currentCookies.startsWith("username") == false)
   {
     document.getElementById("currentUserNameConnectedLabel").innerText = "Not Connected";
@@ -116,6 +118,10 @@
           //get the response and act accordingly
           //alert(http.responseText);
           var myObj = JSON.parse(http.responseText);
+
+          currentSessionUserId = JSON.parse(http.responseText).user_id;
+          alert(currentSessionUserId);
+
           if (myObj.success === false)
           {
             alert(myObj.msg);
@@ -123,7 +129,7 @@
           else
           {
             //set up the cookie of the current user that was just logged in
-            document.cookie = "username=".concat(username).concat("&password=").concat(password);
+            document.cookie = "username=".concat(username).concat("&user_id=").concat(currentSessionUserId);
             //add the current user name in a text box at the top of the page
             document.getElementById("currentUserNameConnectedLabel").innerText = "Hello, ".concat(username);
           }
@@ -222,6 +228,14 @@
       alert("In Order to upload files you need to be connected to the system. Please go to the sign in tab");
       return;
     }
+    //if the user was logged in previously, we need to extract the user id from the cookie
+    if (currentSessionUserId === -1)
+    {
+      var useridindex = currentCookies.indexOf("user_id");
+      var endindex = currentCookies.indexOf(";");
+      var extractUserId = currentCookies.substring(useridindex+8, endindex);
+      currentSessionUserId = extractUserId;
+    }
 
     //change the source of the loader from empty to upload picture so that it would show the loading gif
     document.getElementById('loadingGiftploadfiles').src = 'images/loadingGif1.gif';
@@ -236,7 +250,7 @@
 
     var xhr = new XMLHttpRequest();
     //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/prediction/uploadFiles/");
-    var url = "http://".concat(config.nodeServerIP).concat(config.uploadPredictFilesEndpoint);
+    var url = "http://".concat(config.nodeServerIP).concat(config.uploadPredictFilesEndpoint).concat(currentSessionUserId);
     xhr.open("POST", url);
 
 
@@ -337,6 +351,14 @@
       alert("In Order to upload files you need to be connected to the system. Please go to the sign in tab");
       return;
     }
+    //if the user was logged in previously, we need to extract the user id from the cookie
+    if (currentSessionUserId === -1)
+    {
+      var useridindex = currentCookies.indexOf("user_id");
+      var endindex = currentCookies.indexOf(";");
+      var extractUserId = currentCookies.substring(useridindex+8, endindex);
+      currentSessionUserId = extractUserId;
+    }
 
     //change the source of the loader from empty to picture so that it would show the loading gif
     document.getElementById('loadingGif').src = 'images/loadingGif1.gif';
@@ -352,7 +374,7 @@
     var xhr = new XMLHttpRequest();
     //TODO: change the link of the validate files that were updated
     //var url = "http://".concat(config.nodeServerIP).concat(":3101/stsm/prediction/uploadFiles/");
-    var url = "http://".concat(config.nodeServerIP).concat(config.uploadValidateFilesEndpoint);
+    var url = "http://".concat(config.nodeServerIP).concat(config.uploadValidateFilesEndpoint).concat(currentSessionUserId);
     xhr.open("POST", url);
 
     xhr.onreadystatechange = function () {//Call a function when the state changes.
