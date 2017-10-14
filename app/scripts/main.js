@@ -117,7 +117,7 @@
 		//erase the previous authentication cookie by overriding
 		document.cookie = "username=";
 		//change the status to not connected!
-		document.getElementById("currentUserNameConnectedLabel").innerText = "Not Connected";
+		document.getElementById("currentUserNameConnectedLabel").innerText = "Please Sign In";
 	};
 
 	//Create Button Code
@@ -301,7 +301,6 @@
 		}
 
 		var xhr = new XMLHttpRequest();
-		//TODO: change the link of the validate files that were updated
 		var url = "http://".concat(config.nodeServerIP).concat(config.uploadValidateFilesEndpoint).concat(currentSessionUserId);
 		xhr.open("POST", url);
 
@@ -311,7 +310,7 @@
 				alert(JSON.parse(xhr.responseText).msg);
 				var myObj = JSON.parse(xhr.responseText);
 				if (myObj.success === false) {
-					alert("Files were not uploaded! Please try again!");
+					//alert("Files were not uploaded! Please try again!");
 				}
 				else {
 					//add loader for a specific amount of time and then call the function that asks for the result
@@ -338,22 +337,6 @@
 				//alert(http.responseText);
 				downloadCSV(http.responseText, "validationResults.csv");
 				document.getElementById("loadingGif").src = "";
-				/*
-        var myObj = JSON.parse(http.responseText);
-        if (myObj.success === false)
-        {
-          alert(myObj.msg);
-          //send the request again since there was no reply
-          setTimeout(sendRequestForResults, 1000);
-        }
-        else
-        {
-          ///make the loader invisible
-          document.getElementById('loadingGif').src = '';
-          //download the csv that we got of the results
-          downloadCSV(http.responseText);
-        }
-        */
 			}
 		};
 		http.send(null);
